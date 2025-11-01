@@ -9,22 +9,37 @@ const [tasks, setTasks] =React.useState([{label:"Run 3 miles",isDone:false},{lab
 const[userInput, setUserInput]=React.useState("")
 
 
-const newTask=()=>{
-	if(userInput ===""){
-		return alert("You must type something in! (e.g. Eat BreakFast)")
-	}else{
-		setTasks([...tasks, userInput])
+const newTask=(event)=>{
+	
+	if (event.key === 'Enter'){
+		// Check if input is empty FIRST, before adding task
+		if (userInput.trim() === "") {
+			alert("You must type something in! (e.g. Eat BreakFast)")
+			event.preventDefault()
+			return  // Stop here, don't add the task
+		}
+		
+		// Only runs if validation passes
+		let newTask = {label:userInput, isDone: false}
+		setTasks([...tasks, newTask])
 		setUserInput("")
+		event.preventDefault()
 	}
-
-
 }
+	
+
 const enterKey=(event)=>{
 	if (event.key === 'Enter'){
-		setTasks([...tasks, userInput])
-		setUserInput("")
-		
-	 event.preventDefault(); 
+		if (!userInput || userInput === "") {
+			alert("You must type something in! (e.g. Eat BreakFast)")
+			event.preventDefault()
+			return  
+		}else{
+			let newTask = {label:userInput, isDone: false}
+			setTasks([...tasks, newTask])
+			setUserInput("")
+			event.preventDefault()
+		}
 	}
 }
 
