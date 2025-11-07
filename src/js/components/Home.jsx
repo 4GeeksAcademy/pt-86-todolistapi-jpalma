@@ -7,6 +7,8 @@ import rigoImage from "../../img/rigo-baby.jpg";
 const Home = () => {
 	const [tasks, setTasks] = React.useState([])
 	const [userInput, setUserInput] = React.useState("")
+	const [editMode, setEditMode] =React.useState(null)
+	const[editInput, setEditInput] = React.useState("")
 
 	useEffect(() => {
 		getUser()
@@ -32,7 +34,6 @@ const Home = () => {
 			.then(postData => {
 				setUserInput("")
 				getUser()
-				console.log(postData)
 			});
 
 	}
@@ -72,7 +73,32 @@ const putRequest = (id, updatedTask) => {
 		setTasks(updatedTask)
 	}
 
+const editTask=(index)=>{
+	setEditMode(index)
+	setEditInput(tasks[index].label)
+}
+const cancelEdit=()=>{
+	setEditMode(null)
+	setEditInput("")
+}
+const saveEdit=(index)=>{
+	if(editInput ===""){
+		return(alert("You must type something in!"))
+	}const task=tasks[index]
+		let updatedTask = { ...task, label: editInput }
+		putRequest(task.id, updatedTask)
+		setEditMode(null)
+		setEditInput("")
 
+}
+const editKeyDown=(event, index)=>{
+	if (event.key === 'Enter') {
+			saveEdit(index)
+		event.preventDefault()
+}else if (event.key === 'Escape') {
+			cancelEdit()
+		}
+	}
 	return (
 		<div className="container">
 			<h3>TO-DO List</h3>
@@ -88,8 +114,19 @@ const putRequest = (id, updatedTask) => {
 					{tasks?.map((task, index) =>
 						<li key={index}>
 							<input className="checked" type="checkbox" onChange={() => toggleCheckmark(index)} checked={task.isDone} />
-							<label>{task.label}</label>
-							<button className="remove" onClick={() => deleteTask(task.id)}>🗑️</button>
+							{editMode === index ?(
+								<>
+									<input type="text" value={editInput} onChange={(e) => setEditInput(e.target.value)} onKeyDown={(event)=>editKeyDown(event, index)} />
+									<button className="cancel" onClick={()=>cancelEdit()}>❌</button>
+									<button className="save" onClick={()=>saveEdit(index)}>✔</button>
+								</>
+							):(
+								<>
+									<label>{task.label}</label>
+									<button className="edit" onClick={()=>editTask(index)}>✎</button>
+									<button className="remove" onClick={() => deleteTask(task.id)}>🗑️</button>
+								</>
+							)}
 						</li>
 					)}
 				</ul>
