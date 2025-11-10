@@ -7,8 +7,8 @@ import rigoImage from "../../img/rigo-baby.jpg";
 const Home = () => {
 	const [tasks, setTasks] = React.useState([])
 	const [userInput, setUserInput] = React.useState("")
-	const [editMode, setEditMode] =React.useState(null)
-	const[editInput, setEditInput] = React.useState("")
+	const [editMode, setEditMode] = React.useState(null)
+	const [editInput, setEditInput] = React.useState("")
 
 	useEffect(() => {
 		getUser()
@@ -29,7 +29,7 @@ const Home = () => {
 		if (userInput === "") {
 			return alert("You must type something in! (e.g. Eat BreakFast)")
 		}
-		let newTask = { label: userInput, isDone: false }
+		let newTask = { label: userInput, is_done: false }
 		axios.post("https://playground.4geeks.com/todo/todos/jpalma13", newTask).then(postResponse => postResponse.data)
 			.then(postData => {
 				setUserInput("")
@@ -40,62 +40,56 @@ const Home = () => {
 
 	const enterKey = (event) => {
 		if (event.key === 'Enter') {
-				newTask()
-				event.preventDefault()
-			}
+			newTask()
+			event.preventDefault()
 		}
-
-			
-const deleteTask = (id) => {
-    			axios.delete("https://playground.4geeks.com/todo/todos/" + id)
-        			.then(deleteResponse => deleteResponse.data)
-       				 .then(deleteData => {
-						getUser()
-        });
 	}
-	
-const putRequest = (id, updatedTask) => {
-    axios.put("https://playground.4geeks.com/todo/todos/" + id, updatedTask)
-        .then(putResponse => putResponse.data)
-        .then(putData => {
-            getUser() 
-            console.log(putData)
-        });
-}
+
+
+	const deleteTask = (id) => {
+		axios.delete("https://playground.4geeks.com/todo/todos/" + id)
+			.then(deleteResponse => deleteResponse.data)
+			.then(deleteData => {
+				getUser()
+			});
+	}
+
+	const putRequest = (id, updatedTask) => {
+		axios.put("https://playground.4geeks.com/todo/todos/" + id, updatedTask)
+			.then(putResponse => putResponse.data)
+			.then(putData => {
+				getUser()
+			});
+	}
 	const toggleCheckmark = (index) => {
-		let updatedTask = tasks.filter((task, index) => {
-			if (index === i) {
-				return { ...task, isDone: !task.isDone }
-			} else {
-				return task
-			}
-		})
-		setTasks(updatedTask)
+		const task = tasks[index]
+		let updatedTask = { ...task, is_done: !task.is_done }
+		putRequest(task.id, updatedTask)
 	}
 
-const editTask=(index)=>{
-	setEditMode(index)
-	setEditInput(tasks[index].label)
-}
-const cancelEdit=()=>{
-	setEditMode(null)
-	setEditInput("")
-}
-const saveEdit=(index)=>{
-	if(editInput ===""){
-		return(alert("You must type something in!"))
-	}const task=tasks[index]
+	const editTask = (index) => {
+		setEditMode(index)
+		setEditInput(tasks[index].label)
+	}
+	const cancelEdit = () => {
+		setEditMode(null)
+		setEditInput("")
+	}
+	const saveEdit = (index) => {
+		if (editInput === "") {
+			return (alert("You must type something in!"))
+		} const task = tasks[index]
 		let updatedTask = { ...task, label: editInput }
 		putRequest(task.id, updatedTask)
 		setEditMode(null)
 		setEditInput("")
 
-}
-const editKeyDown=(event, index)=>{
-	if (event.key === 'Enter') {
+	}
+	const editKeyDown = (event, index) => {
+		if (event.key === 'Enter') {
 			saveEdit(index)
-		event.preventDefault()
-}else if (event.key === 'Escape') {
+			event.preventDefault()
+		} else if (event.key === 'Escape') {
 			cancelEdit()
 		}
 	}
@@ -113,17 +107,17 @@ const editKeyDown=(event, index)=>{
 				<ul className="lists">
 					{tasks?.map((task, index) =>
 						<li key={index}>
-							<input className="checked" type="checkbox" onChange={() => toggleCheckmark(index)} checked={task.isDone} />
-							{editMode === index ?(
+							<input className="checked" type="checkbox" onChange={() => toggleCheckmark(index)} checked={task.is_done} />
+							{editMode === index ? (
 								<>
-									<input type="text" value={editInput} onChange={(e) => setEditInput(e.target.value)} onKeyDown={(event)=>editKeyDown(event, index)} />
-									<button className="cancel" onClick={()=>cancelEdit()}>❌</button>
-									<button className="save" onClick={()=>saveEdit(index)}>✔</button>
+									<input type="text" value={editInput} onChange={(e) => setEditInput(e.target.value)} onKeyDown={(event) => editKeyDown(event, index)} />
+									<button className="cancel" onClick={() => cancelEdit()}>❌</button>
+									<button className="save" onClick={() => saveEdit(index)}>✔</button>
 								</>
-							):(
+							) : (
 								<>
 									<label>{task.label}</label>
-									<button className="edit" onClick={()=>editTask(index)}>✎</button>
+									<button className="edit" onClick={() => editTask(index)}>✎</button>
 									<button className="remove" onClick={() => deleteTask(task.id)}>🗑️</button>
 								</>
 							)}
